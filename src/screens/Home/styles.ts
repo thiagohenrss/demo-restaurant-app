@@ -167,8 +167,8 @@ export const NeedContainer = styled.TouchableOpacity<NeedContainerProps>`
   justify-content: center;
   align-items: center;  
 
-  width: 31%;
-  height: 130px;
+  width: 48%;
+  height: 200px;
 
   margin-bottom: 10px;
 

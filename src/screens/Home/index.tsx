@@ -83,7 +83,7 @@ const Home: React.FC = ({}) => {
   }, []);
 
   const handleNavigateToRestaurant = useCallback((itemObject: Restaurant) => {
-    console.log(itemObject);
+    // console.log(itemObject);
     //navigate('Specialists', itemObject);
   }, [navigate]);
 
