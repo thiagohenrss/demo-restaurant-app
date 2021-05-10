@@ -4,6 +4,8 @@ import { getBottomSpace } from 'react-native-iphone-x-helper';
 export const Container = styled.View`
   flex: 1;
   padding: 0px 0px ${16 + getBottomSpace()}px 0px;
+
+  background: #ffffff;
 `;
 
 export const Content = styled.View`
@@ -35,7 +37,7 @@ export const TitleHeader = styled.Text`
   font-size: 24px;
 
   text-align: center;
-  color: #ffffff;
+  color: #ED1C24;
 
   margin-top: 10px;
 `;
@@ -45,11 +47,11 @@ export const TitleBody = styled.Text`
   font-size: 32px;
 
   text-align: center;
-  color: #ffffff;
+  color: #ED1C24;
 `;
 
 export const Description = styled.Text`
-  color: #ffffff;
+  color: #504C4C;
 
   font-family: 'Segoe UI';
   font-size: 18px;

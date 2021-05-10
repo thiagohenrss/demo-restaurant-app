@@ -5,13 +5,14 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Welcome from '../screens/Welcome';
 import Home from '../screens/Home';
 import Stores from '../screens/Stores';
+import StoreDetail from '../screens/StoreDetail';
 
 const App = createStackNavigator();
 
 const AppRoutes: React.FC = () => (
   <>
     <StatusBar
-      barStyle="light-content"
+      barStyle="dark-content"
       hidden={false}
       translucent
       backgroundColor="transparent"
@@ -20,13 +21,14 @@ const AppRoutes: React.FC = () => (
       screenOptions={{
         headerShown: false,
         cardStyle: {
-          backgroundColor: '#db2929',
+          backgroundColor: '#ffffff',
         },
       }}
     >
       <App.Screen name="Welcome" component={ Welcome } />
       <App.Screen name="Home" component={ Home } />
       <App.Screen name="Stores" component={ Stores } />
+      <App.Screen name="StoreDetail" component={ StoreDetail } />
     </App.Navigator>
   </>
 );

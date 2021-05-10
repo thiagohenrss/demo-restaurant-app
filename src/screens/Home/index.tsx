@@ -1,16 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 
 import {
   SafeAreaView, 
   ScrollView,
-  RefreshControl,
-  StyleSheet,
-  StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
-import { SvgUri } from 'react-native-svg';
+import { Form } from '@unform/mobile';
+import { FormHandles } from '@unform/core';
+import * as Yup from 'yup';
+
+import { getValidationErros } from '../../utils/functions';
 
 import api from '../../services/api';
 
@@ -19,59 +21,61 @@ import { Restaurant } from '../../interfaces/restaurant';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import Loading from '../../components/Loading';
+import InputText from '../../components/InputText';
 
-import { 
-  SvgAmbulance, SvgDiagnostic, SvgNurse,
-  SvgConsultation, SvgLabWork, SvgMedicine,
-} from '../../assets/svg/icons';
+import bgHeader from '../../assets/images/header.png';
 
 import {
   Container,
   HeaderBar,
-  HeaderMenu,
-  HeaderMenuButton,
-  CategoryListContainer,
-  CategoryList,
-  CategoryContainer,
-  CategoryImage,
-  CategoryTitle,
+  HeaderBarTitle,
+  HeaderBarSubTitle,
+  HeaderContent,
+  HeaderFooter,
+  HeaderFooterFilter,
+  IconButtonFilter,
   Content,
-  ContentHeader,
   ContentBody,
-  ContentHeaderTitle,
-  UserTitleHello,
-  UserTitleName,
-  ContentHeaderTitleText,
-  NeedHorizontalContainer,
-  NeedContainer,
-  NeedImage,
-  NeedTitle,
-  NeedTitleText,
-  LabelCaption,
+  ContentBodyTitle,
+  ContentBodyTitleText,
+  ContentFooter,
+  StoreHorizontalContainer,
+  StoreContainer,
+  StoreImage,
+  StoreTitle,
+  StoreTitleText,
+  ButtonSeeMore,
+  ButtonSeeMoreText,  
 } from './styles';
 
+interface SearchFormData {
+  search: string;
+}
+
 const Home: React.FC = ({}) => {
+  const formRef = useRef<FormHandles>(null);
+
   const { navigate } = useNavigation();
+
+  const [page, setPage] = useState(1);
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
 
   useEffect(() => {
     async function syncAPIRestaurants(): Promise<void> {
       try {
-        await api.get(
-          `/restaurants?page=${1}&limit=10`,
+        const response = await api.get(
+          `/restaurants?page=${page}&limit=10`,
           { timeout: 15000 },
-        ).then(response => {
-          const { data } = response.data;
+        );
 
-          console.log(data);
+        const { data } = response.data;  
 
-          setRestaurants(data);
-        }).catch(err => {
-
-        });
+        setRestaurants(data); 
+        setPage(2);       
       } catch (error) {
 
       } finally {
@@ -82,19 +86,58 @@ const Home: React.FC = ({}) => {
     syncAPIRestaurants();
   }, []);
 
-  const handleNavigateToRestaurant = useCallback((itemObject: Restaurant) => {
-    // console.log(itemObject);
-    //navigate('Specialists', itemObject);
+  const handleNavigateToRestaurant = useCallback((id: string) => {
+    navigate('StoreDetail', { id: id });
   }, [navigate]);
 
-  const onRefresh = useCallback(async () => {
+  const onRefreshEnd = useCallback(async () => {
     try {
       setRefreshing(true);
-      setRefreshing(false);
+
+      const response = await api.get(
+        `/restaurants?page=${page}&limit=10`,
+        { timeout: 15000 },
+      );
+
+      const { data } = response.data;  
+   
+      setRestaurants(restaurants.concat(data));
+
+      setPage(page + 1);      
     } catch (error) {
 
-    }
-  }, []);
+    } finally {
+      setRefreshing(false);
+    }    
+  }, [page, restaurants]);  
+
+  const handleSearch = useCallback(
+    async (data: SearchFormData) => {
+
+      try {
+        formRef.current?.setErrors({});
+
+        const schema = Yup.object().shape({
+          search: Yup.string().required('Digite uma palavra'),
+        });
+
+        await schema.validate(data, {
+          abortEarly: false,
+        });
+
+        navigate('Stores', { data: data.search });
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErros(err);
+
+          formRef.current?.setErrors(errors);
+
+          if(loading){
+            setLoading(false);
+          }
+        }
+      }
+  }, []);  
 
   if (loading) {
     return (
@@ -103,130 +146,92 @@ const Home: React.FC = ({}) => {
   }
 
   return (
-    <SafeAreaView style={ styles.container }>     
+    <SafeAreaView style={{ flex: 1 }}>     
       <ScrollView
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            progressBackgroundColor="#FFFFFF"
-            colors={["#CA49E5", "#7349E5", "#F6AF3D", "#E5495E"]}
-          />
-        }
       >
         <Container>
-          <HeaderBar>
-            <HeaderMenu>
-              <UserTitleHello>Hello, </UserTitleHello>
-              <UserTitleName>- - - -</UserTitleName>
-            </HeaderMenu>
+          <HeaderBar
+            imageStyle={{
+              resizeMode: "cover",
+            }}
+            source={bgHeader}
+          >
+            <HeaderContent>
+              <HeaderBarTitle>{`Descubra novos\nsabores`}</HeaderBarTitle>
+              <HeaderBarSubTitle>{`Aqui eu converso com você sobre\nnossa proposta`}</HeaderBarSubTitle>              
+            </HeaderContent>
 
-            {/* <HeaderMenuButton onPress={() => {}}>
-              <Icon name="sign-out-alt" size={24} color="#504C4C" />
-            </HeaderMenuButton> */}
+            <HeaderFooter>
+              <Form ref={formRef} onSubmit={ handleSearch }>
+                <HeaderFooterFilter>
+                  <IconButtonFilter onPress={() => { formRef.current?.submitForm(); }}>
+                    <Icon name="search" size={24} color="#ED1C24" />
+                  </IconButtonFilter>
+
+                  <InputText
+                    size={1}
+                    placeholder="Encontre um restaurante"
+                    name="search"
+                    // icon="envelope"
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    keyboardType="default"
+                    returnKeyType="send"
+                    onSubmitEditing={() => { formRef.current?.submitForm(); }}
+                  />
+                </HeaderFooterFilter>
+              </Form>
+            </HeaderFooter>
           </HeaderBar>      
                   
-          <Content>
-            <ContentHeader>
-              <CategoryListContainer>
-                <ContentHeaderTitle>
-                  <ContentHeaderTitleText>Restaurants</ContentHeaderTitleText>
-                </ContentHeaderTitle>
-
-                <CategoryList
-                  showsHorizontalScrollIndicator={false}
-                  horizontal
-                  data={ restaurants }
-                  keyExtractor={ (restaurantItem: Restaurant)  => restaurantItem.id }
-                  renderItem={({ item: itemList }) => (
-
-                    <CategoryContainer 
-                      color={ itemList.color }
-                      onPress={() => { handleNavigateToRestaurant(itemList) }}> 
-
-                      <CategoryImage>
-                        <SvgUri
-                          width="100%"
-                          height="100%"
-                          fill="#CA49E5"
-                          uri="https://raw.githubusercontent.com/PortalTelemedicina/mobile-test/main/icons/heart-shape-outline-with-lifeline.svg"
-                        />                       
-                      </CategoryImage>
-                
-                      <CategoryTitle>{ itemList.name }</CategoryTitle>
-
-                      <LabelCaption>{ `${ itemList.price_range }` }</LabelCaption>
-                    </CategoryContainer>  
-                      
-                  )}
-                />
-              </CategoryListContainer>
-            </ContentHeader>
-            
+          <Content>            
             <ContentBody>
-              <NeedHorizontalContainer>
-                <NeedContainer color="#CA49E5" onPress={() => {}}>
-                  <NeedImage>
-                    <SvgDiagnostic color="#ffffff"/>  
-                  </NeedImage>
-                  
-                  <NeedTitle>
-                    <NeedTitleText numberOfLines={1} color="#ffffff">Diagnostic</NeedTitleText>
-                  </NeedTitle>
-                </NeedContainer>
+              <ContentBodyTitle>
+                <ContentBodyTitleText>Restaurantes</ContentBodyTitleText>
+              </ContentBodyTitle>
 
-                <NeedContainer onPress={() => {}}>
-                  <NeedImage>
-                    <SvgConsultation color="#7C8494"/>  
-                  </NeedImage>
-                  
-                  <NeedTitle>
-                    <NeedTitleText numberOfLines={1}>Consultation</NeedTitleText>
-                  </NeedTitle>
-                </NeedContainer>
+              <StoreHorizontalContainer>
+                {
+                  restaurants.map((restaurant: Restaurant, key) => {
+                    return (
+                      <StoreContainer
+                        key={key}
+                        onPress={() => { handleNavigateToRestaurant(restaurant.id) }}
+                      >
+                        <StoreImage
+                          imageStyle={{
+                            borderRadius: 15,
+                            resizeMode: "cover",
+                          }}
+                          source={
+                            restaurant.image !== null
+                            ? { uri: restaurant.image }
+                            : { uri: "https://media-cdn.tripadvisor.com/media/photo-s/0f/61/05/b6/area-externa-do-restaurante.jpg" }                            
+                          }
+                        >
+                          <StoreTitle>
+                            <StoreTitleText numberOfLines={1} color="#ffffff">{ restaurant.name }</StoreTitleText>
+                          </StoreTitle>                          
+                        </StoreImage>
+                      </StoreContainer>
+                    );
+                  })
+                }
+              </StoreHorizontalContainer>
 
-                <NeedContainer onPress={() => {}}>
-                  <NeedImage>
-                    <SvgNurse color="#7C8494"/>  
-                  </NeedImage>
-                  
-                  <NeedTitle>
-                    <NeedTitleText numberOfLines={1}>Nurse</NeedTitleText>
-                  </NeedTitle>
-                </NeedContainer>
+              <ContentFooter>                
+                <ButtonSeeMore onPress={ onRefreshEnd }>
+                  <ButtonSeeMoreText>
+                    { refreshing ? "Carregando" : "Carregar mais" }
+                  </ButtonSeeMoreText>
 
-                <NeedContainer onPress={() => {}}>
-                  <NeedImage>
-                    <SvgAmbulance color="#7C8494"/>  
-                  </NeedImage>
-                  
-                  <NeedTitle>
-                    <NeedTitleText numberOfLines={1}>Ambulance</NeedTitleText>
-                  </NeedTitle>
-                </NeedContainer>
-
-                <NeedContainer onPress={() => {}}>
-                  <NeedImage>
-                    <SvgLabWork color="#7C8494"/>  
-                  </NeedImage>
-                  
-                  <NeedTitle>
-                    <NeedTitleText numberOfLines={1}>Lab Work</NeedTitleText>
-                  </NeedTitle>
-                </NeedContainer>
-
-                <NeedContainer onPress={() => {}}>
-                  <NeedImage>
-                    <SvgMedicine color="#7C8494"/>  
-                  </NeedImage>
-                  
-                  <NeedTitle>
-                    <NeedTitleText numberOfLines={1}>Medicine</NeedTitleText>
-                  </NeedTitle>
-                </NeedContainer>
-              </NeedHorizontalContainer>
+                  {refreshing && 
+                    <ActivityIndicator size="small" color="#D1000B" style={{ marginLeft: 5 }}/> 
+                  }                  
+                </ButtonSeeMore>
+              </ContentFooter>
             </ContentBody>
           </Content>
         </Container>
@@ -234,12 +239,5 @@ const Home: React.FC = ({}) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: StatusBar.currentHeight,
-  }
-});
 
 export default Home;

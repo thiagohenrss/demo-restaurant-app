@@ -39,7 +39,7 @@ const Welcome = () => {
         <Container>  
           <Content>
             <ContentHeader>
-              <SvgLogo color="#ffffff"/>
+              <SvgLogo color="#ED1C24"/>
               <TitleHeader> Find Restaurant </TitleHeader>
             </ContentHeader>
 
