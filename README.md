@@ -15,9 +15,9 @@ App "Find Restaurante" criado em React Native.
   <th>Loading</th>
 </tr>
 <tr>
-<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/main/resources/prints/welcome.jpg?raw=true" style="height:300px">
+<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/master/resources/prints/welcome.jpg?raw=true" style="height:300px">
 </td>
-<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/main/resources/prints/loading.jpg?raw=true" style="height:300px">
+<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/master/resources/prints/loading.jpg?raw=true" style="height:300px">
 </td>
 </tr>
 </tbody>
@@ -29,9 +29,9 @@ App "Find Restaurante" criado em React Native.
   <th>Pesquisa</th>
 </tr>
 <tr>
-<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/main/resources/prints/home.jpg?raw=true" style="height:300px">
+<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/master/resources/prints/home.jpg?raw=true" style="height:300px">
 </td>
-<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/main/resources/prints/pesquisa.jpg?raw=true"style="height:300px">
+<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/master/resources/prints/pesquisa.jpg?raw=true"style="height:300px">
 </td>
 </tr>
 </tbody>
@@ -43,9 +43,9 @@ App "Find Restaurante" criado em React Native.
   <th>Detalhamento</th>
 </tr>
 <tr>
-<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/main/resources/prints/filtro.jpg?raw=true" style="height:300px">
+<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/master/resources/prints/filtro.jpg?raw=true" style="height:300px">
 </td>
-<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/main/resources/prints/detalhamento.jpg?raw=true"style="height:300px">
+<td><img src="https://github.com/thiagohenrss/demo-restaurant-app/blob/master/resources/prints/detalhamento.jpg?raw=true"style="height:300px">
 </td>
 </tr>
 </tbody>
