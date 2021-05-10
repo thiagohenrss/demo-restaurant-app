@@ -89,7 +89,7 @@ App "Find Restaurante" criado em React Native.
 - [Axios] Para consumo de APIs
 - [Unform] Biblioteca para manipulação de formulários
 - [Yup] Biblioteca para validação de dados de formulários
-
+- [React Testing Library] Biblioteca testes com React Native integrado com JEST
 
 ## Funcionalidades
 
